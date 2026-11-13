@@ -2,6 +2,8 @@
 
 A dynamic 2D shadow system built for **Godot 4**. Instead of relying on static shadow sprites or standard 2D polygon occluders, this system generates a real-time heightmap from your scene's `z_index` hierarchy and uses a screen-space **raymarching shader** to cast realistic directional shadows across terrain and objects.
 
+<img width="991" height="855" alt="HeightMapShadowScreenshot" src="https://github.com/user-attachments/assets/7df8a1c2-6ba0-48ab-a38c-d1db20156fc0" />
+
 ## Features
 
 - **Real-Time Raymarched Shadows:** Casts accurate directional shadows based on object height (`z_index`).
