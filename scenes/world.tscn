@@ -1,6 +1,7 @@
-[gd_scene load_steps=18 format=3 uid="uid://btgstffgnavgo"]
+[gd_scene load_steps=21 format=4 uid="uid://btgstffgnavgo"]
 
 [ext_resource type="Script" uid="uid://bcbrxtmleib2y" path="res://scripts/world.gd" id="1_w7kh3"]
+[ext_resource type="Texture2D" uid="uid://d0d6vwr2la06g" path="res://assets/Tilemap Wall.png" id="2_i7141"]
 [ext_resource type="Texture2D" uid="uid://b4y0q1do0w13o" path="res://icon.svg" id="2_m5mgf"]
 [ext_resource type="Shader" uid="uid://cn6gb2xolsvsb" path="res://shaders/shadow_shader.gdshader" id="4_xo05s"]
 [ext_resource type="Script" uid="uid://d4fei5busjapg" path="res://scripts/camera.gd" id="5_dss4m"]
@@ -22,6 +23,31 @@ frequency = 0.1554
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_k0juu"]
 noise = SubResource("FastNoiseLite_r15pr")
 color_ramp = SubResource("Gradient_04th8")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4mrxx"]
+texture = ExtResource("2_i7141")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(32, -8, 32, 8, 8, 8, 8, 32, -8, 32, -8, -8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(32, -8, 32, 8, -32, 8, -32, -8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(8, 32, -8, 32, -8, 8, -32, 8, -32, -8, 8, -8)
+0:1/0 = 0
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -32, 8, -32, 8, 32, -8, 32)
+2:1/0 = 0
+2:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -32, 8, -32, 8, 32, -8, 32)
+0:2/0 = 0
+0:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -32, 8, -32, 8, -8, 32, -8, 32, 8, -8, 8)
+1:2/0 = 0
+1:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(32, -8, 32, 8, -32, 8, -32, -8)
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 8, -32, -8, -8, -8, -8, -32, 8, -32, 8, 8)
+
+[sub_resource type="TileSet" id="TileSet_7r4gi"]
+tile_size = Vector2i(64, 64)
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_4mrxx")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7d436"]
 radius = 16.0
@@ -58,16 +84,24 @@ shadow_rect = NodePath("Player/Camera2D/ShadowCanvasLayer/ShadowScreenRect")
 day_night_color = SubResource("Gradient_2a68h")
 dynamic_shadow_length = false
 dynamic_day_night_color = false
+multimesh_grass = false
 max_height_z = 30.0
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 
-[node name="Ground" type="Sprite2D" parent="."]
+[node name="Ground" type="Sprite2D" parent="." groups=["ShadowReceiveOnly"]]
 light_mask = 5
-z_index = 1
+z_index = -2
 position = Vector2(24, 0)
 scale = Vector2(200, 200)
 texture = SubResource("NoiseTexture2D_k0juu")
+
+[node name="Wall" type="TileMapLayer" parent="." groups=["ShadowObject"]]
+self_modulate = Color(0.51333463, 0.45844007, 0.33273047, 1)
+z_index = 9
+texture_filter = 1
+tile_map_data = PackedByteArray("AAAGAP3/AAABAAAAAAAFAP3/AAABAAAAAAAEAP3/AAABAAAAAAAHAP3/AAACAAAAAAAHAP7/AAACAAEAAAAHAP//AAAAAAIAAAAIAP//AAABAAAAAAAJAP//AAABAAAAAAAJAPv/AAAAAAAAAAAJAPz/AAAAAAEAAAAJAP3/AAAAAAIAAAAKAPv/AAABAAAAAAAKAP3/AAABAAIAAAALAPv/AAACAAAAAAALAPz/AAACAAEAAAALAP3/AAACAAIAAAA=")
+tile_set = SubResource("TileSet_7r4gi")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 z_index = 5
@@ -78,7 +112,7 @@ script = ExtResource("12_jhx03")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CircleShape2D_7d436")
 
-[node name="Body" type="Sprite2D" parent="Player" groups=["HeightMap"]]
+[node name="Body" type="Sprite2D" parent="Player" groups=["ShadowObject"]]
 z_index = 1
 scale = Vector2(0.2734375, 0.2734375)
 texture = ExtResource("2_m5mgf")
@@ -108,7 +142,7 @@ scale = Vector2(0.91, 0.91)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tree"]
 shape = SubResource("CircleShape2D_yiy5a")
 
-[node name="Tree" type="Sprite2D" parent="Tree" groups=["HeightMap"]]
+[node name="Tree" type="Sprite2D" parent="Tree" groups=["ShadowObject"]]
 light_mask = 512
 use_parent_material = true
 scale = Vector2(0.9999998, 0.9999998)
@@ -125,7 +159,7 @@ scale = Vector2(0.91, 0.91)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tree2"]
 shape = SubResource("CircleShape2D_yiy5a")
 
-[node name="Tree" type="Sprite2D" parent="Tree2" groups=["HeightMap"]]
+[node name="Tree" type="Sprite2D" parent="Tree2" groups=["ShadowObject"]]
 light_mask = 512
 use_parent_material = true
 texture = ExtResource("7_i7141")
@@ -142,7 +176,7 @@ scale = Vector2(0.91, 0.91)
 visibility_layer = 3
 shape = SubResource("CircleShape2D_yiy5a")
 
-[node name="Tree" type="Sprite2D" parent="Tree4" groups=["HeightMap"]]
+[node name="Tree" type="Sprite2D" parent="Tree4" groups=["ShadowObject"]]
 light_mask = 512
 use_parent_material = true
 position = Vector2(7.3846436, 7.384613)
@@ -156,7 +190,7 @@ position = Vector2(-320, 320)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation"]
 shape = SubResource("RectangleShape2D_xo05s")
 
-[node name="Sprite2D" type="Sprite2D" parent="Elevation" groups=["TerrainMap"]]
+[node name="Sprite2D" type="Sprite2D" parent="Elevation" groups=["ShadowObject"]]
 texture = SubResource("NoiseTexture2D_lakw3")
 
 [node name="Tree3" type="StaticBody2D" parent="Elevation"]
@@ -170,7 +204,7 @@ scale = Vector2(0.91, 0.91)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation/Tree3"]
 shape = SubResource("CircleShape2D_yiy5a")
 
-[node name="Tree" type="Sprite2D" parent="Elevation/Tree3" groups=["HeightMap"]]
+[node name="Tree" type="Sprite2D" parent="Elevation/Tree3" groups=["ShadowObject"]]
 light_mask = 512
 use_parent_material = true
 scale = Vector2(0.9999998, 0.9999998)
@@ -187,7 +221,7 @@ scale = Vector2(0.91, 0.91)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation/Tree5"]
 shape = SubResource("CircleShape2D_yiy5a")
 
-[node name="Tree" type="Sprite2D" parent="Elevation/Tree5" groups=["HeightMap"]]
+[node name="Tree" type="Sprite2D" parent="Elevation/Tree5" groups=["ShadowObject"]]
 light_mask = 512
 use_parent_material = true
 texture = ExtResource("7_i7141")
