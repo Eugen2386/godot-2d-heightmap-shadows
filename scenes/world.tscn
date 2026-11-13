@@ -1,0 +1,204 @@
+[gd_scene load_steps=18 format=3 uid="uid://btgstffgnavgo"]
+
+[ext_resource type="Script" uid="uid://bcbrxtmleib2y" path="res://scripts/world.gd" id="1_w7kh3"]
+[ext_resource type="Texture2D" uid="uid://b4y0q1do0w13o" path="res://icon.svg" id="2_m5mgf"]
+[ext_resource type="Shader" uid="uid://cn6gb2xolsvsb" path="res://shaders/shadow_shader.gdshader" id="4_xo05s"]
+[ext_resource type="Script" uid="uid://d4fei5busjapg" path="res://scripts/camera.gd" id="5_dss4m"]
+[ext_resource type="Texture2D" uid="uid://dwu7o13sms05h" path="res://assets/Tree.png" id="7_i7141"]
+[ext_resource type="Script" uid="uid://by4gcb621xrc8" path="res://scripts/player.gd" id="12_jhx03"]
+
+[sub_resource type="Gradient" id="Gradient_2a68h"]
+offsets = PackedFloat32Array(0.28174603, 0.3531746, 0.43650794, 0.7619048, 0.8373016, 0.93650794, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.92941177, 0.6156863, 0, 1, 0.15294118, 0.22745098, 0.34509805, 1, 0.15294118, 0.22745098, 0.34509805, 1, 0.96862745, 0.4745098, 0.77254903, 1, 0.92941177, 0.6156863, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="Gradient" id="Gradient_04th8"]
+offsets = PackedFloat32Array(0, 0.7792793)
+colors = PackedColorArray(0.911114, 0.642587, 0.251347, 1, 0.670887, 0.441795, 0.140045, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_r15pr"]
+noise_type = 4
+frequency = 0.1554
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_k0juu"]
+noise = SubResource("FastNoiseLite_r15pr")
+color_ramp = SubResource("Gradient_04th8")
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7d436"]
+radius = 16.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2a68h"]
+shader = ExtResource("4_xo05s")
+shader_parameter/heightmap_uv_scale = Vector2(1, 1)
+shader_parameter/heightmap_uv_offset = Vector2(0, 0)
+shader_parameter/sun_direction = Vector2(0.7, -0.7)
+shader_parameter/max_ray_distance = 150.0
+shader_parameter/shadow_tint = Color(0.15, 0.18, 0.3, 1)
+shader_parameter/shadow_strength = 0.55
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yiy5a"]
+radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xo05s"]
+size = Vector2(512, 512)
+
+[sub_resource type="Gradient" id="Gradient_dss4m"]
+offsets = PackedFloat32Array(0.22916667, 1)
+colors = PackedColorArray(0.8190818, 0.622614, 0.23150909, 1, 0.7658324, 0.5293393, 0.25212678, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7t5mc"]
+frequency = 0.0016
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_lakw3"]
+noise = SubResource("FastNoiseLite_7t5mc")
+color_ramp = SubResource("Gradient_dss4m")
+
+[node name="World" type="Node2D" node_paths=PackedStringArray("shadow_rect")]
+script = ExtResource("1_w7kh3")
+shadow_rect = NodePath("Player/Camera2D/ShadowCanvasLayer/ShadowScreenRect")
+day_night_color = SubResource("Gradient_2a68h")
+dynamic_shadow_length = false
+dynamic_day_night_color = false
+max_height_z = 30.0
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+
+[node name="Ground" type="Sprite2D" parent="."]
+light_mask = 5
+z_index = 1
+position = Vector2(24, 0)
+scale = Vector2(200, 200)
+texture = SubResource("NoiseTexture2D_k0juu")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+z_index = 5
+scale = Vector2(2, 2)
+motion_mode = 1
+script = ExtResource("12_jhx03")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("CircleShape2D_7d436")
+
+[node name="Body" type="Sprite2D" parent="Player" groups=["HeightMap"]]
+z_index = 1
+scale = Vector2(0.2734375, 0.2734375)
+texture = ExtResource("2_m5mgf")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+process_mode = 3
+script = ExtResource("5_dss4m")
+
+[node name="ShadowCanvasLayer" type="CanvasLayer" parent="Player/Camera2D"]
+
+[node name="ShadowScreenRect" type="ColorRect" parent="Player/Camera2D/ShadowCanvasLayer"]
+z_index = 4000
+material = SubResource("ShaderMaterial_2a68h")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tree" type="StaticBody2D" parent="."]
+modulate = Color(0.44971925, 0.555602, 0.1794452, 1)
+light_mask = 513
+z_index = 10
+position = Vector2(-95.99999, -63.999996)
+scale = Vector2(0.91, 0.91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tree"]
+shape = SubResource("CircleShape2D_yiy5a")
+
+[node name="Tree" type="Sprite2D" parent="Tree" groups=["HeightMap"]]
+light_mask = 512
+use_parent_material = true
+scale = Vector2(0.9999998, 0.9999998)
+texture = ExtResource("7_i7141")
+
+[node name="Tree2" type="StaticBody2D" parent="."]
+modulate = Color(0.3418208, 0.46682376, 0.17581427, 1)
+light_mask = 513
+z_index = 10
+position = Vector2(96, -192)
+rotation = -1.3816848
+scale = Vector2(0.91, 0.91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tree2"]
+shape = SubResource("CircleShape2D_yiy5a")
+
+[node name="Tree" type="Sprite2D" parent="Tree2" groups=["HeightMap"]]
+light_mask = 512
+use_parent_material = true
+texture = ExtResource("7_i7141")
+
+[node name="Tree4" type="StaticBody2D" parent="."]
+modulate = Color(0.30319735, 0.37778437, 0.10930053, 1)
+light_mask = 513
+z_index = 10
+position = Vector2(351.99997, 135.99997)
+rotation = 1.1914157
+scale = Vector2(0.91, 0.91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tree4"]
+visibility_layer = 3
+shape = SubResource("CircleShape2D_yiy5a")
+
+[node name="Tree" type="Sprite2D" parent="Tree4" groups=["HeightMap"]]
+light_mask = 512
+use_parent_material = true
+position = Vector2(7.3846436, 7.384613)
+scale = Vector2(0.9999998, 0.9999998)
+texture = ExtResource("7_i7141")
+
+[node name="Elevation" type="StaticBody2D" parent="."]
+z_index = 20
+position = Vector2(-320, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation"]
+shape = SubResource("RectangleShape2D_xo05s")
+
+[node name="Sprite2D" type="Sprite2D" parent="Elevation" groups=["TerrainMap"]]
+texture = SubResource("NoiseTexture2D_lakw3")
+
+[node name="Tree3" type="StaticBody2D" parent="Elevation"]
+modulate = Color(0.7057341, 0.4415468, 0.069323845, 1)
+light_mask = 513
+z_index = 30
+position = Vector2(199.99992, 127.99998)
+rotation = -1.0217917
+scale = Vector2(0.91, 0.91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation/Tree3"]
+shape = SubResource("CircleShape2D_yiy5a")
+
+[node name="Tree" type="Sprite2D" parent="Elevation/Tree3" groups=["HeightMap"]]
+light_mask = 512
+use_parent_material = true
+scale = Vector2(0.9999998, 0.9999998)
+texture = ExtResource("7_i7141")
+
+[node name="Tree5" type="StaticBody2D" parent="Elevation"]
+modulate = Color(0.5177855, 0.4038291, 0, 1)
+light_mask = 513
+z_index = 30
+position = Vector2(136, -80)
+rotation = -0.75858486
+scale = Vector2(0.91, 0.91)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Elevation/Tree5"]
+shape = SubResource("CircleShape2D_yiy5a")
+
+[node name="Tree" type="Sprite2D" parent="Elevation/Tree5" groups=["HeightMap"]]
+light_mask = 512
+use_parent_material = true
+texture = ExtResource("7_i7141")
+
+[node name="HeightmapViewport" type="SubViewport" parent="."]
+transparent_bg = true
+handle_input_locally = false
+canvas_cull_mask = 4293918722
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="HeightCamera" type="Camera2D" parent="HeightmapViewport"]
+light_mask = 3
+visibility_layer = 3
