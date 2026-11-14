@@ -18,7 +18,8 @@ void fragment() {
 	vec2 base_hm_uv = SCREEN_UV * heightmap_uv_scale + heightmap_uv_offset;
 	vec4 my_height_data = texture(heightmap_tex, base_hm_uv);
 
-	if (my_height_data.b > my_height_data.g) {
+	float zero_alpha = clamp(my_height_data.b, 0.0, 1.0);
+	if (my_height_data.b > my_height_data.g && zero_alpha >= 0.99) {
 		COLOR = world_color;
 	} else {
 		float my_height = my_height_data.g;
@@ -37,10 +38,8 @@ void fragment() {
 			}
 
 			vec4 sample_data = texture(heightmap_tex, sample_uv);
-
 			float sample_height = sample_data.r;
-
-			float required_height = my_height + (float(i) / float(steps)) * 0.45;
+			float required_height = my_height + (float(i) / float(steps)) * 1.0;
 
 			if (sample_height > required_height && sample_height > my_height + 0.02) {
 				in_shadow = 1.0;
@@ -48,7 +47,8 @@ void fragment() {
 			}
 		}
 
-		float final_shadow = in_shadow * shadow_strength;
+		float coverage = (my_height_data.b > my_height_data.g) ? (1.0 - zero_alpha) : 1.0;
+		float final_shadow = in_shadow * shadow_strength * coverage;
 		vec3 shadowed_world = mix(world_color.rgb, world_color.rgb * shadow_tint.rgb, final_shadow);
 
 		COLOR = vec4(shadowed_world, world_color.a);

@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Heightmap Shadows"
+config/name="Heightmap Shadows (Copy)"
 run/main_scene="uid://btgstffgnavgo"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
